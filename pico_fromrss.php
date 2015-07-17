@@ -58,7 +58,7 @@ class Pico_FromRSS {
       $this->removeBeforeScanned($cdir);
       $i = 0;
       foreach($xml->channel->item as $j){
-        if($i++ > $entry['count']) break;
+        if($i++ >= $entry['count']) break;
         // mdファイル作成
         $page = "/*\n";
         $page .= sprintf("  Title: %s\n", $j->title);
