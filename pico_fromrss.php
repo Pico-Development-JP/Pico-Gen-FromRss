@@ -68,7 +68,7 @@ class Pico_FromRSS {
         $page .= "*/\n";
         $page .= $j->description;
 
-        $fn = md5($j->guid) . ".md5";
+        $fn = md5($j->guid) . ".md";
         echo $fn . " Save Success\n";
         file_put_contents($cdir . $fn, $page);
       }
