@@ -39,6 +39,9 @@ class Pico_FromRSS {
     $cachedir = LOG_DIR . "fromrss/";
     $cachefile = $cachedir . $rssmd5 . ".xml";
     echo sprintf("%s(%s)\n", $entrydata['rss'], $rssmd5);
+    if(!file_exists($cdir)){
+      mkdir($cdir, "0500", true);
+    }
     if(!file_exists($cachedir)){
       mkdir($cachedir, "0500", true);
     }
