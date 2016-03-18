@@ -35,7 +35,7 @@ class Pico_FromRSS {
     $entrydata = array('count' => 5) + $entry;
     
     $rssmd5 = md5($entrydata["rss"]);
-    $cdir = ROOT_DIR . $this->settings["content_dir"] . $entrydata["directory"];
+    $cdir = $this->settings["content_dir"] . $entrydata["directory"];
     $cachedir = LOG_DIR . "fromrss/";
     $cachefile = $cachedir . $rssmd5 . ".xml";
     echo sprintf("%s(%s)\n", $entrydata['rss'], $rssmd5);
@@ -63,12 +63,12 @@ class Pico_FromRSS {
       foreach($xml->channel->item as $j){
         if($i++ >= $entry['count']) break;
         // mdファイル作成
-        $page = "/*\n";
-        $page .= sprintf("  Title: %s\n", $j->title);
-        $page .= sprintf("  Author: %s\n", $xml->channel->title);
-        $page .= sprintf("  Date: %s\n", $j->pubDate);
-        $page .= sprintf("  URL: %s\n", $j->link);
-        $page .= "*/\n";
+        $page = "---\n";
+        $page .= sprintf("Title: %s\n", $j->title);
+        $page .= sprintf("Author: %s\n", $xml->channel->title);
+        $page .= sprintf("Date: %s\n", $j->pubDate);
+        $page .= sprintf("URL: %s\n", $j->link);
+        $page .= "---\n";
         $page .= $j->description;
 
         $fn = md5($j->guid) . ".md";
