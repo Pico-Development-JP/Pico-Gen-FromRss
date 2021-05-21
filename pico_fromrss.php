@@ -53,6 +53,31 @@ class Pico_FromRSS {
       $content = $this->curl_getcontents($entrydata['rss'], $responce);
       file_put_contents($cachefile, $content);
       $xml = new SimpleXMLElement($content);
+      switch ($xml->getName()) {
+        case 'rss':
+          # RSS
+          $rootnode = "/rss/channel/item";
+          $titlenode = "title";
+          $authornode = "/rss/channel/title";
+          $pubdatenode = "pubDate";
+          $bodynode = "description";
+          $linknode = "link";
+          $idnode = "guid";
+          break;
+        case 'feed':
+          # Atom
+          $rootnode = "//*[local-name()='entry']";
+          $titlenode = "*[local-name()='title']";
+          $authornode = "//*[local-name()='title']";
+          $pubdatenode = "*[local-name()='published']";
+          $bodynode = "*[local-name()='summary' or local-name()='content']";
+          $linknode = "*[local-name()='link']/@href";
+          $idnode = "*[local-name()='id']";
+          break;
+        default:
+          throw new Exception("Unknown XML File " . $entry["rss"]);
+          break;
+      }
       if($responce['http_code'] >= 300){
         throw new Exception("HTTP Error: " . $responce['http_code']);
       }else{
@@ -60,18 +85,19 @@ class Pico_FromRSS {
       }
       $this->removeBeforeScanned($cdir);
       $i = 0;
-      foreach($xml->channel->item as $j){
+      $authorname = (string)$xml->xpath($authornode)[0];
+      foreach($xml->xpath($rootnode) as $j){
         if($i++ >= $entry['count']) break;
         // mdファイル作成
         $page = "---\n";
-        $page .= sprintf("Title: %s\n", $j->title);
-        $page .= sprintf("Author: %s\n", $xml->channel->title);
-        $page .= sprintf("Date: %s\n", $j->pubDate);
-        $page .= sprintf("URL: %s\n", $j->link);
+        $page .= sprintf("Title: %s\n", (string)$j->xpath($titlenode)[0]);
+        $page .= sprintf("Author: %s\n", $authorname);
+        $page .= sprintf("Date: %s\n", (string)$j->xpath($pubdatenode)[0]);
+        $page .= sprintf("URL: %s\n", (string)$j->xpath($linknode)[0]);
         $page .= "---\n";
-        $page .= $j->description;
+        $page .= (string)$j->xpath($bodynode)[0];
 
-        $fn = md5($j->guid) . ".md";
+        $fn = md5((string)$j->xpath($idnode)[0]) . ".md";
         echo $fn . " Save Success\n";
         file_put_contents($cdir . $fn, $page);
       }
