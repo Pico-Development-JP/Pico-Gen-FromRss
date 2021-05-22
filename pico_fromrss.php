@@ -90,6 +90,7 @@ class Pico_FromRSS {
       $i = 0;
       $authorname = $xpath->query($authornode)[0]->textContent;
       foreach($xpath->query($rootnode) as $j){
+        if($entry['query'] && count($xpath->query($entry['query'], $j)) == 0) continue;
         if($i++ >= $entry['count']) break;
         // mdファイル作成
         $page = "---\n";
