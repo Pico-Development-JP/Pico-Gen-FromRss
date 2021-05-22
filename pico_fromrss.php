@@ -106,7 +106,6 @@ class Pico_FromRSS {
         echo $fn . " Save Success\n";
         file_put_contents($cdir . $fn, $page);
       }
-      exit();
     }catch(Exception $e){
       echo $e->getMessage();
     }
