@@ -52,8 +52,11 @@ class Pico_FromRSS {
       // まずは読み込み
       $content = $this->curl_getcontents($entrydata['rss'], $responce);
       file_put_contents($cachefile, $content);
-      $xml = new SimpleXMLElement($content);
-      switch ($xml->getName()) {
+      $xml = new DOMDocument();
+      $xml->preserveWhiteSpace = false;
+      $xml->loadXML($content);
+      $xpath = new DOMXPath($xml);
+      switch ($xml->childNodes[0]->nodeName) {
         case 'rss':
           # RSS
           $rootnode = "/rss/channel/item";
@@ -85,22 +88,23 @@ class Pico_FromRSS {
       }
       $this->removeBeforeScanned($cdir);
       $i = 0;
-      $authorname = (string)$xml->xpath($authornode)[0];
-      foreach($xml->xpath($rootnode) as $j){
+      $authorname = $xpath->query($authornode)[0]->textContent;
+      foreach($xpath->query($rootnode) as $j){
         if($i++ >= $entry['count']) break;
         // mdファイル作成
         $page = "---\n";
-        $page .= sprintf("Title: %s\n", (string)$j->xpath($titlenode)[0]);
+        $page .= sprintf("Title: %s\n", $xpath->query($titlenode, $j)[0]->textContent);
         $page .= sprintf("Author: %s\n", $authorname);
-        $page .= sprintf("Date: %s\n", (string)$j->xpath($pubdatenode)[0]);
-        $page .= sprintf("URL: %s\n", (string)$j->xpath($linknode)[0]);
+        $page .= sprintf("Date: %s\n", $xpath->query($pubdatenode, $j)[0]->textContent);
+        $page .= sprintf("URL: %s\n", $xpath->query($linknode, $j)[0]->textContent);
         $page .= "---\n";
-        $page .= (string)$j->xpath($bodynode)[0];
+        $page .= $xpath->query($bodynode, $j)[0]->textContent;
 
-        $fn = md5((string)$j->xpath($idnode)[0]) . ".md";
+        $fn = md5($xpath->query($idnode, $j)[0]->textContent) . ".md";
         echo $fn . " Save Success\n";
         file_put_contents($cdir . $fn, $page);
       }
+      exit();
     }catch(Exception $e){
       echo $e->getMessage();
     }
