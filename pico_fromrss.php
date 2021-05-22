@@ -91,6 +91,7 @@ class Pico_FromRSS {
       $authorname = $xpath->query($authornode)[0]->textContent;
       foreach($xpath->query($rootnode) as $j){
         if(array_key_exists("query", $entry)) if(!$this->checkquery($entry["query"], $xpath, $j)) continue;
+        if(array_key_exists("hasnt", $entry)) if($this->checkquery($entry["hasnt"], $xpath, $j)) continue;
         if($i++ >= $entry['count']) break;
         // mdファイル作成
         $page = "---\n";
