@@ -90,7 +90,21 @@ class Pico_FromRSS {
       $i = 0;
       $authorname = $xpath->query($authornode)[0]->textContent;
       foreach($xpath->query($rootnode) as $j){
-        if($entry['query'] && count($xpath->query($entry['query'], $j)) == 0) continue;
+        if(array_key_exists("query", $entry)){
+          // 記事は条件に合致する？
+          switch (gettype($entry['query'])) {
+            case 'string':
+              if(count($xpath->query($entry['query'], $j)) == 0) continue 2;
+              break;
+            case 'array':
+              foreach ($entry['query'] as $q) {
+                if(count($xpath->query($q, $j)) == 0) continue 3;
+              }
+              break;
+            default:
+              throw new Exception("Unknown query type!", 1);
+          }
+        }
         if($i++ >= $entry['count']) break;
         // mdファイル作成
         $page = "---\n";
