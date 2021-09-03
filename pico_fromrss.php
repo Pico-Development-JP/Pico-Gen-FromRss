@@ -73,7 +73,11 @@ class Pico_FromRSS {
           $titlenode = "*[local-name()='title']";
           $authornode = "//*[local-name()='title']";
           $pubdatenode = "*[local-name()='published']";
-          $bodynode = "*[local-name()='summary' or local-name()='content']";
+          if($xml->childNodes[0]->lookupNamespaceUri("media") == "http://search.yahoo.com/mrss/"){
+            $bodynode = "media:group/media:description";
+          }else{
+            $bodynode = "*[local-name()='summary' or local-name()='content']";
+          }
           $linknode = "*[local-name()='link']/@href";
           $idnode = "*[local-name()='id']";
           break;
