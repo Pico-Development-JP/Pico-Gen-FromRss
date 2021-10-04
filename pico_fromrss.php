@@ -66,6 +66,7 @@ class Pico_FromRSS {
           $bodynode = "description";
           $linknode = "link";
           $idnode = "guid";
+          $enclosurenode = "enclosure/@url";
           break;
         case 'feed':
           # Atom
@@ -80,6 +81,7 @@ class Pico_FromRSS {
           }
           $linknode = "*[local-name()='link']/@href";
           $idnode = "*[local-name()='id']";
+          $enclosurenode = "*[local-name()='enclosure']/@url";
           break;
         default:
           throw new Exception("Unknown XML File " . $entry["rss"]);
@@ -103,6 +105,9 @@ class Pico_FromRSS {
         $page .= sprintf("Author: %s\n", $authorname);
         $page .= sprintf("Date: %s\n", $xpath->query($pubdatenode, $j)[0]->textContent);
         $page .= sprintf("URL: %s\n", $xpath->query($linknode, $j)[0]->textContent);
+        if(count($xpath->query($enclosurenode, $j)) > 0){
+          $page .= sprintf("Data: %s\n", $xpath->query($enclosurenode, $j)[0]->textContent);
+        }
         $page .= "---\n";
         $page .= $xpath->query($bodynode, $j)[0]->textContent;
 
